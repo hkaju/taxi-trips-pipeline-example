@@ -11,12 +11,13 @@ with shifts as (
 final as (
     select
         md5(random()::text) as shift_id,
+        date_trunc('week', lower(shift_duration)) as shift_week,
         s.taxi_id,
         s.shift_duration,
-        sum(t.trip_total) as shift_total,
-        sum(t.trip_miles) as shift_miles,
         count(t) as trip_count,
-        sum(t.trip_seconds) as shift_seconds,
+        coalesce(sum(t.trip_total), 0) as shift_total,
+        coalesce(sum(t.trip_miles), 0) as shift_miles,
+        coalesce(sum(t.trip_seconds), 0) as shift_seconds,
         max(t.created_at) as updated_at
     from shifts s
     join pipeline.trips t on

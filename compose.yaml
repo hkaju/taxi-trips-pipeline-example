@@ -33,9 +33,9 @@ services:
       retries: 10
       start_period: 5s
   watcher:
+    <<: *pipeline-common
     command: npm run watcher-dev
     restart: on-failure:3
-    <<: *pipeline-common
     healthcheck:
       test: ["CMD-SHELL", "exit 0"]
       interval: 1s
@@ -44,14 +44,16 @@ services:
         condition: service_healthy
         restart: true
   worker:
+    <<: *pipeline-common
     command: npm run worker-dev
     restart: on-failure:3
-    <<: *pipeline-common
     deploy:
       mode: replicated
       replicas: 4
     depends_on:
       watcher:
+        condition: service_healthy
+      database:
         condition: service_healthy
         restart: true
   dbt:
@@ -73,3 +75,10 @@ services:
       - type: bind
         source: ./dbt/profiles.yml
         target: /root/.dbt/profiles.yml
+  report:
+    <<: *pipeline-common
+    command: npm run report
+    depends_on:
+      database:
+        condition: service_healthy
+        restart: true

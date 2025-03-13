@@ -7,7 +7,8 @@
     "watcher": "node watcher.ts",
     "watcher-dev": "node watcher.ts | pino-pretty -c",
     "worker": "node worker.ts",
-    "worker-dev": "node worker.ts | pino-pretty -c"
+    "worker-dev": "node worker.ts | pino-pretty -c",
+    "report": "node report.ts"
   },
   "author": "",
   "license": "ISC",
