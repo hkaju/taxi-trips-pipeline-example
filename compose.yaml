@@ -78,7 +78,10 @@ services:
   report:
     <<: *pipeline-common
     command: npm run report
+    profiles: ["manual"]
     depends_on:
       database:
         condition: service_healthy
         restart: true
+      dbt:
+        condition: service_completed_successfully
