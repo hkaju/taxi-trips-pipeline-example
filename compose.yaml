@@ -34,6 +34,7 @@ services:
       start_period: 5s
   watcher:
     command: npm run watcher-dev
+    restart: on-failure:3
     <<: *pipeline-common
     healthcheck:
       test: ["CMD-SHELL", "exit 0"]
@@ -44,6 +45,7 @@ services:
         restart: true
   worker:
     command: npm run worker-dev
+    restart: on-failure:3
     <<: *pipeline-common
     deploy:
       mode: replicated
