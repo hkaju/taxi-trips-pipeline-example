@@ -55,6 +55,7 @@ services:
   dbt:
     image: ghcr.io/dbt-labs/dbt-postgres:1.9.latest
     platform: linux/amd64
+    profiles: ["dbt"]
     environment:
       <<: *env
       POSTGRES_HOST: database
