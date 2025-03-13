@@ -64,7 +64,8 @@ CREATE TABLE pipeline.trips(
     pickup_centroid_location VARCHAR,
     dropoff_centroid_latitude FLOAT,
     dropoff_centroid_longitude FLOAT,
-    dropoff_centroid_location VARCHAR
+    dropoff_centroid_location VARCHAR,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW()
 ) PARTITION BY RANGE (trip_start);
 
 -- Create indexes on columns we expect to use more heavily
