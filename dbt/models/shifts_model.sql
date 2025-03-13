@@ -35,6 +35,9 @@ new as (
     join pipeline.trips t on
         t.taxi_id = s.taxi_id
         and t.trip_duration && s.shift_duration
+    where
+        t.trip_total is not null and
+        not (coalesce(t.trip_seconds, 0) = 0 and coalesce(t.trip_miles, 0) = 0)
     group by
         s.shift_duration, s.taxi_id
 )
