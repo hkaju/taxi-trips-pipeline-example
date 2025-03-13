@@ -32,10 +32,12 @@ services:
       interval: 1s
       retries: 10
       start_period: 5s
-      timeout: 10s
   watcher:
     command: npm run watcher-dev
     <<: *pipeline-common
+    healthcheck:
+      test: ["CMD-SHELL", "exit 0"]
+      interval: 1s
     depends_on:
       database:
         condition: service_healthy
@@ -48,7 +50,7 @@ services:
       replicas: 4
     depends_on:
       watcher:
-        condition: service_started
+        condition: service_healthy
         restart: true
   dbt:
     image: ghcr.io/dbt-labs/dbt-postgres:1.9.latest
