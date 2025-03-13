@@ -11,6 +11,10 @@ SELECT
     taxi_id,
 	  date_trunc('week', lower(shift_duration)) as shift_week,
     shift_total,
+    shift_fare,
+    shift_tolls,
+    shift_tips,
+    shift_extras,
     shift_miles,
     shift_seconds::float,
     trip_count::float
@@ -29,12 +33,16 @@ WHERE
     console.log(`\n\nWeek of ${week}`);
     console.table(
       weeklyShifts[week].map((shift) => ({
-        "Taxi ID (truncated)":
+        "Taxi ID":
           shift["taxi_id"].slice(0, 6) +
           "..." +
           shift["taxi_id"].slice(shift["taxi_id"].length - 6),
-        "Total earnings": shift["shift_total"],
         "Trip count": shift["trip_count"],
+        Fares: shift["shift_fare"],
+        Tips: shift["shift_tips"],
+        Tolls: shift["shift_tolls"],
+        Extras: shift["shift_extras"],
+        Total: shift["shift_total"],
         "Total miles": shift["shift_miles"],
         "Total seconds": shift["shift_seconds"],
       }))
