@@ -50,3 +50,17 @@ services:
       watcher:
         condition: service_started
         restart: true
+  dbt:
+    image: ghcr.io/dbt-labs/dbt-postgres:1.9.latest
+    platform: linux/amd64
+    environment:
+      <<: *env
+      POSTGRES_HOST: database
+      POSTGRES_SCHEMA: pipeline
+    volumes:
+      - type: bind
+        source: ./dbt
+        target: /usr/app/dbt
+      - type: bind
+        source: ./dbt/profiles.yml
+        target: /root/.dbt/profiles.yml
