@@ -1,0 +1,52 @@
+x-env: &env
+  POSTGRES_DB: pipeline
+  POSTGRES_USER: postgres
+  POSTGRES_PASSWORD: password2
+
+x-pipeline-common: &pipeline-common
+  build: pipeline
+  volumes:
+    - ./data-intake:/opt/data-intake
+  environment:
+    <<: *env
+    POSTGRES_HOST: database
+    DATA_INTAKE: /opt/data-intake
+  develop:
+    watch:
+      - action: sync+restart
+        path: ./pipeline/src
+        target: /opt/pipeline
+      - action: rebuild
+        path: ./pipeline/package.json
+
+services:        
+  database:
+    build: database
+    ports:
+      - "5432:5432"
+    environment:
+      <<: *env
+      POSTGRESQL_SHARED_PRELOAD_LIBRARIES: pgaudit,pg_partman_bgw
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d pipeline"]
+      interval: 1s
+      retries: 10
+      start_period: 5s
+      timeout: 10s
+  watcher:
+    command: npm run watcher-dev
+    <<: *pipeline-common
+    depends_on:
+      database:
+        condition: service_healthy
+        restart: true
+  worker:
+    command: npm run worker-dev
+    <<: *pipeline-common
+    deploy:
+      mode: replicated
+      replicas: 4
+    depends_on:
+      watcher:
+        condition: service_started
+        restart: true
