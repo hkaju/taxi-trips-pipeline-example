@@ -3,13 +3,13 @@ import sql from "./shared/sql.ts";
 async function generateReport() {
   let topShifts = await sql`
 WITH ranked_shifts AS (
-    SELECT *, ROW_NUMBER() OVER (PARTITION BY shift_week ORDER BY shift_total DESC) AS row_num
+    SELECT *, ROW_NUMBER() OVER (PARTITION BY date_trunc('week', lower(shift_duration)) ORDER BY shift_total DESC) AS row_num
     FROM dbt.shifts_model
 )
 SELECT
     shift_id,
     taxi_id,
-	shift_week,
+	  date_trunc('week', lower(shift_duration)) as shift_week,
     shift_total,
     shift_miles,
     shift_seconds::float,

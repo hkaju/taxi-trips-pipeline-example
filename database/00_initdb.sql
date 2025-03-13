@@ -46,6 +46,7 @@ CREATE TABLE pipeline.trips(
     taxi_id VARCHAR NOT NULL,
     trip_start TIMESTAMP NOT NULL,
     trip_end TIMESTAMP NOT NULL,
+    trip_duration TSRANGE NOT NULL,
     trip_seconds INTEGER,
     trip_miles FLOAT,
     pickup_census_tract BIGINT,
@@ -72,6 +73,8 @@ CREATE TABLE pipeline.trips(
 CREATE INDEX ON pipeline.trips (taxi_id);
 CREATE INDEX ON pipeline.trips (trip_start);
 CREATE INDEX ON pipeline.trips (trip_end);
+CREATE INDEX ON pipeline.trips (trip_duration);
+CREATE INDEX ON pipeline.trips (created_at);
 
 -- Create a template table for new partitions
 CREATE TABLE pipeline.trips_template (LIKE pipeline.trips);

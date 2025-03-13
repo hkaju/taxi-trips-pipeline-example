@@ -70,13 +70,14 @@ await queues.stagedData.work(async ([job]) => {
   try {
     await sql`
     WITH bad_data AS (
-	    DELETE FROM ${sql(table)}
-        WHERE
-            trip_id IS NULL
-            OR taxi_id IS NULL
-            OR trip_start IS NULL
-            OR trip_end IS NULL
-            RETURNING *
+      DELETE FROM ${sql(table)}
+      WHERE
+        trip_id IS NULL
+        OR taxi_id IS NULL
+        OR trip_start IS NULL
+        OR trip_end IS NULL
+        OR trip_end::timestamp < trip_start::timestamp
+      RETURNING *
     )
     INSERT INTO pipeline.bad_trips SELECT * from bad_data;`;
 
@@ -110,6 +111,7 @@ await queues.cleanedData.work(async ([job]) => {
             taxi_id,
             trip_start::timestamp,
             trip_end::timestamp,
+            tsrange(trip_start::timestamp, trip_end::timestamp + interval '1 hour') as trip_duration,
             trip_seconds::int,
             trip_miles::float,
             pickup_census_tract::bigint,
