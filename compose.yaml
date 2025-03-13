@@ -19,7 +19,11 @@ x-pipeline-common: &pipeline-common
       - action: rebuild
         path: ./pipeline/package.json
 
-services:        
+services:
+  data-downloader:
+    build: data
+    volumes:
+      - ./data:/data/out
   database:
     build: database
     ports:

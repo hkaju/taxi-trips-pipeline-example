@@ -7,57 +7,43 @@ from datetime import datetime
 from urllib.request import urlretrieve
 
 # Script configuration
-data_path = Path(os.path.dirname(__file__))
+data_path = Path(os.environ.get("DATA_PATH", os.path.dirname(__file__)))
+
+downloaded_data_path = data_path / "downloaded"
+downloaded_data_path.mkdir(exist_ok=True, parents=True)
+output_data_path = data_path / "out"
+output_data_path.mkdir(exist_ok=True, parents=True)
+
 data_url = (
     "https://www.kaggle.com/api/v1/datasets/download/adelanseur/taxi-trips-chicago-2024"
 )
-zipped_filename = "taxi-trips-chicago-2024.zip"
-data_filename = "Taxi_Trips_-_2024_20240408.csv"
-weekly_data_path = data_path / "weekly"
-logging_prefix = "      ↳"
+zipped_data_path = downloaded_data_path / "taxi-trips-chicago-2024.zip"
+unzipped_data_path = downloaded_data_path / "Taxi_Trips_-_2024_20240408.csv"
 
 
 def download_data():
-    print("[1/3] Download data from Kaggle")
-
-    if (data_path / zipped_filename).exists():
-        print(f"{logging_prefix} {zipped_filename} found, skipping")
+    if zipped_data_path.exists():
         return
 
-    def show_progress(block_num, block_size, total_size):
-        print(
-            f"{logging_prefix} Progress: {round(block_num * block_size / total_size * 100)}%",
-            end="\r",
-        )
-
-    urlretrieve(data_url, data_path / zipped_filename, show_progress)
-    print(f"{logging_prefix} Progress: Done!")
+    print(f"Downloading {data_url} to {zipped_data_path}")
+    urlretrieve(data_url, zipped_data_path)
 
 
 def unzip_data():
-    print("[2/3] Unpack data")
-
-    if (data_path / data_filename).exists():
-        print(f"{logging_prefix} {data_filename} found, skipping")
+    if (unzipped_data_path).exists():
         return
 
-    print(f"{logging_prefix} Upacking {zipped_filename}...")
-    with zipfile.ZipFile(data_path / zipped_filename, "r") as zip_ref:
-        zip_ref.extractall(data_path)
+    print(f"Unpacking {zipped_data_path} to {unzipped_data_path}")
+    with zipfile.ZipFile(zipped_data_path, "r") as zip_ref:
+        zip_ref.extractall(unzipped_data_path.parent)
 
 
 def split_data():
-    print("[3/3] Split data into weekly batches")
-
-    if weekly_data_path.exists():
-        print(f"{logging_prefix} {weekly_data_path} found, skipping")
-        return
-
-    weekly_data_path.mkdir(parents=True, exist_ok=True)
-
+    print(f"Splitting {unzipped_data_path} to {output_data_path}")
+    batches = {}
     # Keep track of the CSV header that we need to add to individual batches
     csv_header = None
-    with (data_path / data_filename).open() as datafile:
+    with unzipped_data_path.open() as datafile:
         while line := datafile.readline():
             # Capture the first line as the header
             if not csv_header:
@@ -68,14 +54,16 @@ def split_data():
             datetime_object = datetime.strptime(datetime_string, "%m/%d/%Y %I:%M:%S %p")
 
             batch_filename = f"trips-{datetime_object.isocalendar().year}-week-{datetime_object.isocalendar().week}.csv"
-            batch_path = weekly_data_path / batch_filename
+            if batch_filename not in batches:
+                batches[batch_filename] = [csv_header]
+            batches[batch_filename].append(line)
 
-            new_batch = not batch_path.exists()
-            with batch_path.open("a") as batch_file:
-                if new_batch:
-                    print(f"      ↳ {batch_path}")
-                    batch_file.write(csv_header)
-                batch_file.write(line)
+    for batch_filename in batches:
+        batch_path = output_data_path / batch_filename
+
+        with batch_path.open("w") as batch_file:
+            batch_file.writelines(batches[batch_filename])
+        print(f"Saved {batch_path}")
 
 
 if __name__ == "__main__":
