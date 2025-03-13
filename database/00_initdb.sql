@@ -68,7 +68,6 @@ CREATE TABLE pipeline.trips(
 ) PARTITION BY RANGE (trip_start);
 
 -- Create indexes on columns we expect to use more heavily
-CREATE INDEX ON pipeline.trips (trip_id);
 CREATE INDEX ON pipeline.trips (taxi_id);
 CREATE INDEX ON pipeline.trips (trip_start);
 CREATE INDEX ON pipeline.trips (trip_end);
