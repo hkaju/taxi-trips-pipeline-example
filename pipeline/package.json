@@ -1,0 +1,26 @@
+{
+  "name": "taxi-trips-pipeline",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "",
+  "scripts": {
+    "watcher": "node watcher.ts",
+    "watcher-dev": "node watcher.ts | pino-pretty -c",
+    "worker": "node worker.ts",
+    "worker-dev": "node worker.ts | pino-pretty -c"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "chokidar": "^4.0.3",
+    "pg-boss": "^10.1.6",
+    "pino": "^9.6.0",
+    "postgres": "^3.4.5",
+    "ts-node": "^10.9.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.10",
+    "pino-pretty": "^13.0.0"
+  }
+}
