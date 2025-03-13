@@ -57,11 +57,15 @@ services:
   dbt:
     image: ghcr.io/dbt-labs/dbt-postgres:1.9.latest
     platform: linux/amd64
-    profiles: ["dbt"]
+    command: run
+    depends_on:
+      database:
+        condition: service_healthy
+        restart: true
     environment:
       <<: *env
       POSTGRES_HOST: database
-      POSTGRES_SCHEMA: pipeline
+      POSTGRES_SCHEMA: dbt
     volumes:
       - type: bind
         source: ./dbt
