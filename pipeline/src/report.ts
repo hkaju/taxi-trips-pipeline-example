@@ -4,7 +4,7 @@ async function generateReport() {
   let topShifts = await sql`
 WITH ranked_shifts AS (
     SELECT *, ROW_NUMBER() OVER (PARTITION BY date_trunc('week', lower(shift_duration)) ORDER BY shift_total DESC) AS row_num
-    FROM dbt.shifts_model
+    FROM dbt.shifts
 )
 SELECT
     shift_id,
